@@ -346,7 +346,7 @@ public class GenerateRebelMojo extends AbstractMojo {
             try {
                 rebelXmlDirectory.mkdirs();
                 w = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(rebelXmlFile), "UTF-8"));
-                wRemote = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(rebelXmlFile), "UTF-8"));
+                wRemote = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(rebelRemoteXmlFile), "UTF-8"));
                 builder.writeXml(w);
                 builderRemote.writeXml(wRemote);
             } catch (IOException e) {
@@ -356,6 +356,7 @@ public class GenerateRebelMojo extends AbstractMojo {
                 if (this.buildContext != null) {
                     // safeguard for null buildContext. Can it be null, actually? E.g when field is not injected.
                     this.buildContext.refresh(rebelXmlFile);
+                    this.buildContext.refresh(rebelRemoteXmlFile);
                 }
             }
         }

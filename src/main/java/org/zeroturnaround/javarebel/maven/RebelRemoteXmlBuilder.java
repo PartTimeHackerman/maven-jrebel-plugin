@@ -9,9 +9,12 @@ public class RebelRemoteXmlBuilder extends RebelXmlBuilder {
 
     @Override
     public void writeXml(Writer writer) throws IOException {
-        String dir = ((RebelClasspathResource)classpathDir.get(0)).getDirectory();
-        String[] dirArr = dir.split("/");
-        String moduleName =  dirArr[dirArr.length-1];
+        String moduleName = "";
+        if (classpathDir.size() > 0) {
+            String dir = ((RebelClasspathResource) classpathDir.get(0)).getDirectory();
+            String[] dirArr = dir.split("/");
+            moduleName = dirArr[dirArr.length - 1];
+        }
 
         writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         writer.write("\n<!--\n"

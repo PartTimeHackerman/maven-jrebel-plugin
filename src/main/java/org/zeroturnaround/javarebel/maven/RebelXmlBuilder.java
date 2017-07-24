@@ -1,33 +1,31 @@
 package org.zeroturnaround.javarebel.maven;
 
-import java.io.IOException;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
+import org.zeroturnaround.javarebel.maven.model.RebelClasspathResource;
+import org.zeroturnaround.javarebel.maven.model.RebelResource;
+import org.zeroturnaround.javarebel.maven.model.RebelWar;
+import org.zeroturnaround.javarebel.maven.model.RebelWebResource;
 
+import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-import org.zeroturnaround.javarebel.maven.model.RebelClasspathResource;
-import org.zeroturnaround.javarebel.maven.model.RebelWar;
-import org.zeroturnaround.javarebel.maven.model.RebelWebResource;
-import org.zeroturnaround.javarebel.maven.model.RebelResource;
 
 /**
  * Class for constructing xml configuration.
  */
 class RebelXmlBuilder {
 
-  private String fallbackClasspath;
-  private final List classpathDir = new ArrayList();
-  private final List classpathJar = new ArrayList();
-  private final List classpathJarset = new ArrayList();
-  private final List classpathDirset = new ArrayList();
+  protected final List classpathDir = new ArrayList();
+  protected final List classpathJar = new ArrayList();
+  protected final List classpathJarset = new ArrayList();
+  protected final List classpathDirset = new ArrayList();
+  protected String fallbackClasspath;
+  protected RebelWar war;
 
-  private RebelWar war;
-
-  private List webResources = new ArrayList();
+  protected List webResources = new ArrayList();
 
   public void setFallbackClasspath(String fallbackClasspath) {
     this.fallbackClasspath = fallbackClasspath;

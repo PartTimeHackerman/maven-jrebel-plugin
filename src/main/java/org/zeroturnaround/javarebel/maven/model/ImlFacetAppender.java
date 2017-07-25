@@ -2,12 +2,13 @@ package org.zeroturnaround.javarebel.maven.model;
 
 import org.apache.maven.project.MavenProject;
 import org.dom4j.*;
+import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.StringReader;
+import org.dom4j.io.XMLWriter;
+
+import java.io.*;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
@@ -61,32 +62,30 @@ public class ImlFacetAppender {
         String imlFile = moduleName + ".iml";
         URL imlDirUrl;
         try {
-            imlDirUrl = new URL(baseDirUrl.getPath() + "/" + imlFile);
+            imlDirUrl = new URL(baseDirUrl.toString() + imlFile);
         } catch (MalformedURLException e) {
             System.out.println(imlFile + "not found, ignoring module.");
             return;
         }
 
-        Document iml = null;
+        Document iml;
         try {
             iml = parse(imlDirUrl);
         } catch (DocumentException e) {
             System.out.println(e);
+            return;
         }
-
-
 
         Element facetManagerComponent = getFacetManagerComponent(iml);
+
+        if (facetManagerComponent == null){
+            addComponent(iml);
+            facetManagerComponent = getFacetManagerComponent(iml);
+        }
+
         removeOldJrebelFacet(facetManagerComponent);
         addJrebelFacet(facetManagerComponent);
-
-        FileWriter out;
-        try {
-            out = new FileWriter(imlFile);
-            iml.write(out);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        save(iml, imlDirUrl.getPath());
     }
 
     public Document parse(URL url) throws DocumentException {
@@ -105,6 +104,10 @@ public class ImlFacetAppender {
         return null;
     }
 
+    public void addComponent(Document document){
+        document.getRootElement().addElement("component").addAttribute("name", "FacetManager");
+    }
+
     public void addJrebelFacet(Element facetManager){
         facetManager.add(JRebelFacet);
     }
@@ -118,6 +121,18 @@ public class ImlFacetAppender {
                 attribute.getParent().detach();
         }
 
+    }
+
+    public void save(Document iml, String path){
+        try {
+            FileOutputStream fos = new FileOutputStream(path);
+            OutputFormat format = OutputFormat.createPrettyPrint();
+            XMLWriter writer = new XMLWriter(fos, format);
+            writer.write(iml);
+            writer.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }

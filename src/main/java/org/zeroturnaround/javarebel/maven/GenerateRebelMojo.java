@@ -296,7 +296,7 @@ public class GenerateRebelMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
         //printWarningAboutPhase();
 
-        if (!modules.contains(getProject().getName()) && !modules.isEmpty()){
+        if (modules != null && !modules.contains(getProject().getName()) && !modules.isEmpty()){
             return;
         }
 

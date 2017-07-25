@@ -317,7 +317,7 @@ public class GenerateRebelMojo extends AbstractMojo {
         getLog().info("Processing " + getProject().getGroupId() + ":" + getProject().getArtifactId() + " with packaging " + packaging);
 
         RebelXmlBuilder builder = new RebelXmlBuilder();
-        RebelRemoteXmlBuilder builderRemote = new RebelRemoteXmlBuilder();
+        RebelRemoteXmlBuilder builderRemote = new RebelRemoteXmlBuilder(getProject());
         if (WAR_PACKAGING.contains(packaging)) {
             buildWar(builder);
             buildWar(builderRemote);

@@ -74,8 +74,11 @@ public class ImlFacetAppender {
             System.out.println(e);
         }
 
-        Element facetManagercomponent = getFacetManagerComponent(iml);
-        addJrebelFacet(facetManagercomponent);
+
+
+        Element facetManagerComponent = getFacetManagerComponent(iml);
+        removeOldJrebelFacet(facetManagerComponent);
+        addJrebelFacet(facetManagerComponent);
 
         FileWriter out;
         try {
@@ -104,6 +107,17 @@ public class ImlFacetAppender {
 
     public void addJrebelFacet(Element facetManager){
         facetManager.add(JRebelFacet);
+    }
+
+    public void removeOldJrebelFacet(Element facetManager){
+        List<Node> facets = facetManager.selectNodes("//facet/@name");
+
+        for (Iterator<Node> node = facets.iterator(); node.hasNext(); ) {
+            Attribute attribute = (Attribute) node.next();
+            if ("JRebel".equals(attribute.getValue()))
+                attribute.getParent().detach();
+        }
+
     }
 
 }

@@ -185,6 +185,13 @@ public class GenerateRebelMojo extends AbstractMojo {
     private MojoExecution execution;
 
     /**
+     * Modules to be modified.
+     *
+     * @parameter"
+     */
+    private List<String> modules;
+
+    /**
      * Taken from eclipse plugin. Search for the configuration Xpp3 dom of an other plugin.
      *
      * @param project  the current maven project to get the configuration from.
@@ -289,6 +296,10 @@ public class GenerateRebelMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
         //printWarningAboutPhase();
 
+        if (!modules.contains(getProject().getName()) && !modules.isEmpty()){
+            return;
+        }
+
         // do not generate rebel.xml file if skip parameter or 'performRelease' system property is set to true
         try {
             if (this.skip || Boolean.getBoolean("performRelease")) {
@@ -318,6 +329,7 @@ public class GenerateRebelMojo extends AbstractMojo {
 
         RebelXmlBuilder builder = new RebelXmlBuilder();
         RebelRemoteXmlBuilder builderRemote = new RebelRemoteXmlBuilder(getProject());
+        ImlFacetAppender imlFacetAppender = new ImlFacetAppender();
         if (WAR_PACKAGING.contains(packaging)) {
             buildWar(builder);
             buildWar(builderRemote);
@@ -349,6 +361,7 @@ public class GenerateRebelMojo extends AbstractMojo {
                 wRemote = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(rebelRemoteXmlFile), "UTF-8"));
                 builder.writeXml(w);
                 builderRemote.writeXml(wRemote);
+                imlFacetAppender.writeIml(getProject());
             } catch (IOException e) {
                 throw new MojoExecutionException("Failed writing rebel.xml", e);
             } finally {

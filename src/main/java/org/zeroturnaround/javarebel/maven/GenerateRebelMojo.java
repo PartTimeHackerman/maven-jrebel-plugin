@@ -187,9 +187,9 @@ public class GenerateRebelMojo extends AbstractMojo {
     /**
      * Modules to be modified.
      *
-     * @parameter"
+     * @parameter
      */
-    private List<String> modules;
+    private List<Module> modules;
 
     /**
      * Taken from eclipse plugin. Search for the configuration Xpp3 dom of an other plugin.
@@ -294,11 +294,9 @@ public class GenerateRebelMojo extends AbstractMojo {
     }
 
     public void execute() throws MojoExecutionException, MojoFailureException {
-        //printWarningAboutPhase();
-
-        if (modules != null && !modules.contains(getProject().getName()) && !modules.isEmpty()){
+        MavenProject mavenProject = getProject();
+        if (!canBeProcessed(mavenProject))
             return;
-        }
 
         // do not generate rebel.xml file if skip parameter or 'performRelease' system property is set to true
         try {
@@ -373,6 +371,52 @@ public class GenerateRebelMojo extends AbstractMojo {
                 }
             }
         }
+    }
+
+    private Boolean canBeProcessed(MavenProject mavenProject) {
+        Module module = getModuleByProject(mavenProject);
+        return isDefined(module) || canBeProcessedAsSubProject(mavenProject);
+    }
+
+    private Boolean isDefined(Module module) {
+        return !(module == null || ((modules != null) && !modules.isEmpty() && !modules.contains(module)));
+    }
+
+    private Boolean canBeProcessedAsSubProject(MavenProject mavenProject) {
+        Map<Module, Integer> parentsDepths = getParentsWithDepth(mavenProject);
+        for (Map.Entry<Module, Integer> entry : parentsDepths.entrySet()) {
+            Module parentModule = entry.getKey();
+            Integer parentDepth = entry.getValue();
+            if ((parentModule.getDepth() < 0 || parentModule.getDepth() >= parentDepth) &&
+                    isDefined(parentModule) && parentModule.getSubs())
+                return true;
+        }
+        return false;
+    }
+
+    private Module getModuleByProject(MavenProject mavenProject) {
+        Module module = null;
+        if (modules != null) {
+            for (Module module1 : modules) {
+                if (mavenProject.getName().equals(module1.getName()))
+                    module = module1;
+            }
+        }
+        return module;
+    }
+
+    private Map<Module, Integer> getParentsWithDepth(MavenProject mavenProject) {
+        HashMap<Module, Integer> parentsDepths = new HashMap<Module, Integer>();
+        Integer depth = 1;
+        MavenProject parentProject = mavenProject.getParent();
+        while (parentProject != null) {
+            Module parentModule = getModuleByProject(parentProject);
+            if (parentModule != null)
+                parentsDepths.put(parentModule, depth);
+            depth++;
+            parentProject = parentProject.getParent();
+        }
+        return parentsDepths;
     }
 
     /**

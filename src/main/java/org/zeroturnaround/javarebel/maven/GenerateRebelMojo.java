@@ -379,7 +379,7 @@ public class GenerateRebelMojo extends AbstractMojo {
     }
 
     private Boolean isDefined(Module module) {
-        return !(module == null || ((modules != null) && !modules.isEmpty() && !modules.contains(module)));
+        return modules != null && modules.contains(module);
     }
 
     private Boolean canBeProcessedAsSubProject(MavenProject mavenProject) {
@@ -388,7 +388,7 @@ public class GenerateRebelMojo extends AbstractMojo {
             Module parentModule = entry.getKey();
             Integer parentDepth = entry.getValue();
             if ((parentModule.getDepth() < 0 || parentModule.getDepth() >= parentDepth) &&
-                    isDefined(parentModule) && parentModule.getSubs())
+                    isDefined(parentModule) && parentModule.getDepth() > 0)
                 return true;
         }
         return false;
